@@ -54,3 +54,5 @@ gem 'rubocop-rails', group: :development, require: false
 gem "sidekiq", "~> 6.3"
 
 gem "sidekiq-cron", "~> 1.2"
+
+gem 'open-uri', '~> 0.2.0'
