@@ -50,3 +50,7 @@ gem "turbo-rails", "~> 7.1"
 gem "stimulus-rails", "~> 0.7.2"
 
 gem 'rubocop-rails', group: :development, require: false
+
+gem "sidekiq", "~> 6.3"
+
+gem "sidekiq-cron", "~> 1.2"
