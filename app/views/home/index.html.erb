@@ -1,4 +1,15 @@
-<%= turbo_stream_from "crypto_list" %>
-<%= turbo_frame_tag "crypto_list" do %>
-    <%= render @cryptoCoins%>
-<% end %>
+<div class="container">
+	<table id="example" class="table table-striped table-bordered" style="width: 1000px;">
+	  <thead>
+			<th>Name</th>
+			<th>Single Transaction</th>
+			<th>Multisig Transaction</th>
+	  </thead>
+      <%= turbo_stream_from "crypto_coins" %>
+
+	    <tbody id="crypto_coins" is="turbo-frame">
+          <%= render @cryptoCoins %>
+        </tbody>
+
+	</table>
+</div>

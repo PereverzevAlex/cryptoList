@@ -6,7 +6,7 @@ ruby '3.0.2'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
 gem 'rails', '~> 6.1.4', '>= 6.1.4.1'
 # Use sqlite3 as the database for Active Record
-gem 'sqlite3', '~> 1.4'
+#gem 'sqlite3', '~> 1.4'
 # Use Puma as the app server
 gem 'puma', '~> 5.0'
 # Use SCSS for stylesheets
@@ -45,9 +45,11 @@ end
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
-gem "turbo-rails", "~> 7.1"
+gem 'turbo-rails', '~> 0.9.0'
 
-gem "stimulus-rails", "~> 0.7.2"
+gem 'stimulus-rails', '~> 0.7.3'
+
+gem 'hotwire-rails', '~> 0.1.3'
 
 gem 'rubocop-rails', group: :development, require: false
 
@@ -56,3 +58,9 @@ gem "sidekiq", "~> 6.3"
 gem "sidekiq-cron", "~> 1.2"
 
 gem 'open-uri', '~> 0.2.0'
+
+gem "pagy", "~> 5.5"
+
+gem "pg_search", "~> 2.3"
+
+gem "pg", "~> 1.2"

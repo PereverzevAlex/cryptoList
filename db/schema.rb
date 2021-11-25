@@ -12,6 +12,9 @@
 
 ActiveRecord::Schema.define(version: 2021_11_24_155603) do
 
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
   create_table "crypto_coins", force: :cascade do |t|
     t.string "key"
     t.string "name", null: false

@@ -1,3 +1,11 @@
-<%= turbo_frame_tag dom_id(crypto_coin) do %>
-  <%= label_tag "txt-#{crypto_coin.name}" %>
+<%= content_tag :tr, id: dom_id(crypto_coin) do %>
+    <td>
+      <%= crypto_coin.name %>
+    </td>
+    <td>
+      <%= crypto_coin.single_cost %>
+    </td>
+    <td>
+      <%= crypto_coin.multisig_cost %>
+    </td>
 <% end %>
