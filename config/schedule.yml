@@ -1,4 +1,4 @@
 pull_crypto_info:
-  cron: "* * * * *"
+  cron: "0-59/10 * * * *"
   class: "PullCryptoInfoJob"
   queue: default

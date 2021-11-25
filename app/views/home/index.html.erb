@@ -1,15 +1,16 @@
-<div class="container">
-	<table id="example" class="table table-striped table-bordered" style="width: 1000px;">
+<br/>
+<br/>
+<br/>
+<div style="display: flex; align-items: center;">
+	<table id="example" class="table table-striped table-bordered" style="width: 800px; margin-left:auto; margin-right:auto">
 	  <thead>
-			<th>Name</th>
-			<th>Single Transaction</th>
-			<th>Multisig Transaction</th>
+		<th>Name</th>
+		<th>Single Transaction</th>
+		<th>Multisig Transaction</th>
 	  </thead>
       <%= turbo_stream_from "crypto_coins" %>
-
-	    <tbody id="crypto_coins" is="turbo-frame">
+	  <tbody id="crypto_coins" is="turbo-frame">
           <%= render @cryptoCoins %>
         </tbody>
-
 	</table>
 </div>

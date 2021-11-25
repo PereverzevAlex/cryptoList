@@ -3,9 +3,13 @@
       <%= crypto_coin.name %>
     </td>
     <td>
-      <%= crypto_coin.single_cost %>
+      $ <%= crypto_coin.single_cost.round(6) %>
     </td>
     <td>
-      <%= crypto_coin.multisig_cost %>
+      <% if crypto_coin.multisig_cost == 0.0 %>
+        N/A
+      <% else %>
+        $ <%= crypto_coin.multisig_cost.round(6) %>
+      <% end %>
     </td>
 <% end %>
