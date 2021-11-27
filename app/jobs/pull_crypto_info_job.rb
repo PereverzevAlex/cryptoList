@@ -15,99 +15,99 @@ class PullCryptoInfoJob < ApplicationJob
 
   def perform(*_args)
     logger.debug '---> RUN CRON'
-    coinCapResp = fetchData(COINCAP_URL)
-    btcFeeResp = fetchData(BLOCKCHAIN_INFO_URL)
-    ethGasResp = fetchData(ETHERSCAN_INFO_URL)
-    bscResp = fetchData(BSCSCAN_URL)
-    mapiTaalResp = fetchData(MAPITAAL_URL)
+    coin_cap_resp = fetch_data(COINCAP_URL)
+    btc_fee_resp = fetch_data(BLOCKCHAIN_INFO_URL)
+    eth_gas_resp = fetch_data(ETHERSCAN_INFO_URL)
+    bsc_resp = fetch_data(BSCSCAN_URL)
+    mapi_taal_resp = fetch_data(MAPITAAL_URL)
 
-    data = coinCapResp['data']
-    bscData = bscResp['result']
+    data = coin_cap_resp['data']
+    bsc_data = bsc_resp['result']
     if data
-      bitcoinData = fetchCryptoInfo(data, 'bitcoin')
-      ethereumData = fetchCryptoInfo(data, 'ethereum')
-      bitcoinSVData = fetchCryptoInfo(data, 'bitcoin-sv')
+      bitcoin_data = fetch_crypto_info(data, 'bitcoin')
+      ethereum_data = fetch_crypto_info(data, 'ethereum')
+      bitcoin_sv_data = fetch_crypto_info(data, 'bitcoin-sv')
 
-      logger.debug bitcoinData.to_s
-      logger.debug ethereumData.to_s
-      logger.debug bitcoinSVData.to_s
+      logger.debug bitcoin_data.to_s
+      logger.debug ethereum_data.to_s
+      logger.debug bitcoin_sv_data.to_s
 
-      if bitcoinData
-        btcRate = bitcoinData['priceUsd'].to_f
-        btcName = bitcoinData['name'].to_s
-        btcTransFee = singleBTCTransaction(btcFeeResp, btcRate)
+      if bitcoin_data
+        btcRate = bitcoin_data['priceUsd'].to_f
+        btcName = bitcoin_data['name'].to_s
+        btcTransFee = single_btc_transaction(btc_fee_resp, btcRate)
         logger.debug "btcTransFee #{btcTransFee}"
       end
 
-      if ethereumData
-        ethRate = ethereumData['priceUsd'].to_f
-        ethName = ethereumData['name'].to_s
-        ethTransFee = singleEthTransaction(ethGasResp, ethRate)
+      if ethereum_data
+        ethRate = ethereum_data['priceUsd'].to_f
+        ethName = ethereum_data['name'].to_s
+        ethTransFee = singleEthTransaction(eth_gas_resp, ethRate)
         logger.debug "ethTransFee #{ethTransFee}"
       end
 
-      if bitcoinSVData
-        bsvRate = bitcoinSVData['priceUsd'].to_f
-        bsvName = bitcoinSVData['name'].to_s
-        bsvTransFee = singleBSVTransaction(mapiTaalResp, bsvRate)
+      if bitcoin_sv_data
+        bsvRate = bitcoin_sv_data['priceUsd'].to_f
+        bsvName = bitcoin_sv_data['name'].to_s
+        bsvTransFee = single_bsv_transaction(mapi_taal_resp, bsvRate)
         logger.debug "bsvTransFee #{bsvTransFee}"
       end
     end
 
-    if bscData
-      bscFee = bscData['SafeGasPrice'].to_i
-      bscRate = bscData['UsdPrice'].to_f
-      bscTransFee = singleBCSTransaction(bscFee, bscRate)
+    if bsc_data
+      bscFee = bsc_data['SafeGasPrice'].to_i
+      bscRate = bsc_data['UsdPrice'].to_f
+      bscTransFee = single_bcs_transaction(bscFee, bscRate)
       logger.debug "bscTransFee #{bscTransFee}"
     end
 
-    updateDB('bitcoin', btcName, btcTransFee, 2)
-    updateDB('ethereum', ethName, ethTransFee, 20)
-    updateDB('bitcoin-sv', bsvName, bsvTransFee, 20)
-    updateDB(BSC_KEY, BSC_NAME, bscTransFee, 0)
+    update_db('bitcoin', btcName, btcTransFee, 2)
+    update_db('ethereum', ethName, ethTransFee, 20)
+    update_db('bitcoin-sv', bsvName, bsvTransFee, 20)
+    update_db(BSC_KEY, BSC_NAME, bscTransFee, 0)
   end
 
   private
 
-  def fetchData(url)
+  def fetch_data(url)
     JSON.parse URI.open(url).read
   end
 
-  def fetchCryptoInfo(data, id)
+  def fetch_crypto_info(data, id)
     data.select { |crypto| crypto['id'] == id }.try(:first)
   end
 
-  def singleBTCTransaction(btcFeeResp, rate)
-    fee = btcFeeResp['regular']
+  def single_btc_transaction(btc_fee_resp, rate)
+    fee = btc_fee_resp['regular']
     btcBsvFormula(fee, rate)
   end
 
-  def singleBSVTransaction(btcFeeResp, rate)
-    feeData = JSON.parse(btcFeeResp['payload'])['fees'].select { |gas| gas['feeType'] == 'standard' }.try(:first)
+  def single_bsv_transaction(btc_fee_resp, rate)
+    feeData = JSON.parse(btc_fee_resp['payload'])['fees'].select { |gas| gas['feeType'] == 'standard' }.try(:first)
     if feeData
-      feePair = feeData['relayFee']
-      feePerByte = feePair['satoshis'].to_f / feePair['bytes'].to_i
-      btcBsvFormula(feePerByte, rate)
+      fee_pair = feeData['relayFee']
+      fee_per_byte = fee_pair['satoshis'].to_f / fee_pair['bytes'].to_i
+      btcBsvFormula(fee_per_byte, rate)
     end
   end
 
-  def singleEthTransaction(ethGasResp, rate)
-    ethFee = ethGasResp['result']['suggestBaseFee'].to_i
-    bscEthFormula(ethFee, rate)
+  def singleEthTransaction(eth_gas_resp, rate)
+    eth_fee = eth_gas_resp['result']['suggestBaseFee'].to_i
+    bsc_eth_formula(eth_fee, rate)
   end
 
-  def singleBCSTransaction(bscFee, bscRate)
-    bscEthFormula(bscFee, bscRate)
+  def single_bcs_transaction(bscFee, bscRate)
+    bsc_eth_formula(bscFee, bscRate)
   end
 
-  def updateDB(id, name, singleTransactionFee, factor)
-    if singleTransactionFee > 0
-      CryptoCoin.find_or_initialize_by(key: id).update(key: id, name: name, single_cost: singleTransactionFee,
-                                                       multisig_cost: singleTransactionFee * factor)
+  def update_db(id, name, single_transaction_fee, factor)
+    if single_transaction_fee > 0
+      CryptoCoin.find_or_initialize_by(key: id).update(key: id, name: name, single_cost: single_transaction_fee,
+                                                       multisig_cost: single_transaction_fee * factor)
     end
   end
 
-  def bscEthFormula(fee, rate)
+  def bsc_eth_formula(fee, rate)
     if fee && rate
       21_000 * fee * rate * 10**-9
     else
